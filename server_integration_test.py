@@ -5,7 +5,6 @@ from langchain.prompts.chat import (
     AIMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 # According to these links it seems that setting the openai_api_base as a param or an
 # environment variable will allow us to use drop-in replacements for the OpenAI API
@@ -28,13 +27,24 @@ chat = ChatOpenAI(
     max_tokens=2000,
 )
 
-messages = [
-    SystemMessage(
-        content="You are MistralOrca, a large language model trained by Alignment Lab AI."  # . Write out your reasoning step-by-step to be sure you get the right answers!"
-    ),
-    HumanMessage(content="What is the capital of Taiwan?"),
-]
+system_template = (
+    "You are MistralOrca, a large language model trained by Alignment Lab AI."
+)
+system_message_prompt = SystemMessagePromptTemplate.from_template(
+    system_template)
+human_template = "{text}"
+human_message_prompt = HumanMessagePromptTemplate.from_template(
+    human_template)
 
-result = chat(messages)
+chat_prompt = ChatPromptTemplate.from_messages(
+    [system_message_prompt, human_message_prompt]
+)
 
-print(result)
+# get a chat completion from the formatted messages
+result = chat(
+    chat_prompt.format_prompt(
+        text="What is the capital of Taiwan?"
+    ).to_messages()
+)
+
+print(result.content)
