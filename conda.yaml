@@ -73,4 +73,6 @@ dependencies:
       - urllib3==2.0.7
       - uvicorn==0.23.2
       - yarl==1.9.2
+variables:
+  N_CTX: '8000'
 prefix: /home/andrew/miniconda3/envs/llm

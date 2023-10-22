@@ -1,3 +1,5 @@
+import os
+
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -19,6 +21,8 @@ from langchain.prompts.chat import (
 # python3 -m llama_cpp.server --model <path to model>
 # Further instructions can be found here:
 # https://llama-cpp-python.readthedocs.io/en/latest/
+
+# Mistral-7B docs suggests that it works for context length up to 8000 tokens
 
 chat = ChatOpenAI(
     temperature=0,
