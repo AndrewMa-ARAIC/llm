@@ -1,4 +1,5 @@
 import os
+import textwrap
 
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import (
@@ -27,11 +28,27 @@ from langchain.prompts.chat import (
 
 # Mistral-7B docs suggests that it works for context length up to 8000 tokens
 
+
+def read_txt():
+    with open(os.path.join(os.getcwd(), "input.txt"), "r") as f:
+        text = f.read()
+    return text
+
+
+MAX_TOKENS = 2000
+
+text = read_txt()
+print(f"input.txt:\n\n{textwrap.fill(text, max_lines=5)}")
+print()
+print("Parameters:")
+print(f'N_CTX = {os.environ["N_CTX"]}')
+print(f'max tokens = {MAX_TOKENS}')
+
 chat = ChatOpenAI(
     temperature=0,
     openai_api_key="YOUR_API_KEY",
     openai_api_base="http://localhost:8000/v1",
-    max_tokens=2000,
+    max_tokens=MAX_TOKENS,
 )
 
 system_template = (
@@ -47,7 +64,9 @@ chat_prompt = ChatPromptTemplate.from_messages(
 
 # get a chat completion from the formatted messages
 result = chat(
-    chat_prompt.format_prompt(text="What is the capital of Taiwan?").to_messages()
+    chat_prompt.format_prompt(
+        text=text,
+    ).to_messages()
 )
 
 print(result.content)
