@@ -18,7 +18,10 @@ from langchain.prompts.chat import (
 # langchain.chat_models.openai.ChatOpenAI.html#langchain.chat_models.openai.ChatOpenAI
 
 # In order to serve the model locally, you need to run the following command:
-# python3 -m llama_cpp.server --model <path to model>
+# python3 -m llama_cpp.server --model <path to model> --n_ctx=<context length>
+#
+# I made an environment variable for the context length named N_CTX
+#
 # Further instructions can be found here:
 # https://llama-cpp-python.readthedocs.io/en/latest/
 
@@ -34,11 +37,9 @@ chat = ChatOpenAI(
 system_template = (
     "You are MistralOrca, a large language model trained by Alignment Lab AI."
 )
-system_message_prompt = SystemMessagePromptTemplate.from_template(
-    system_template)
+system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
 human_template = "{text}"
-human_message_prompt = HumanMessagePromptTemplate.from_template(
-    human_template)
+human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
 
 chat_prompt = ChatPromptTemplate.from_messages(
     [system_message_prompt, human_message_prompt]
@@ -46,9 +47,7 @@ chat_prompt = ChatPromptTemplate.from_messages(
 
 # get a chat completion from the formatted messages
 result = chat(
-    chat_prompt.format_prompt(
-        text="What is the capital of Taiwan?"
-    ).to_messages()
+    chat_prompt.format_prompt(text="What is the capital of Taiwan?").to_messages()
 )
 
 print(result.content)
