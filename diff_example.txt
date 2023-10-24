@@ -1,17 +1,47 @@
+diff --git a/diff_example.txt b/diff_example.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/input.txt b/input.txt
+new file mode 100644
+index 0000000..a3a20f1
+--- /dev/null
++++ b/input.txt
+@@ -0,0 +1 @@
++What is the capital of the UK?
+\ No newline at end of file
 diff --git a/server_integration_test.py b/server_integration_test.py
-index 3f29b05..67ba302 100644
+index 24209e8..67ba302 100644
 --- a/server_integration_test.py
 +++ b/server_integration_test.py
-@@ -1,4 +1,5 @@
- import os
+@@ -1,3 +1,6 @@
++import os
 +import textwrap
- 
++
  from langchain.chat_models import ChatOpenAI
  from langchain.prompts.chat import (
-@@ -27,11 +28,27 @@ from langchain.prompts.chat import (
+     ChatPromptTemplate,
+@@ -5,7 +8,6 @@ from langchain.prompts.chat import (
+     AIMessagePromptTemplate,
+     HumanMessagePromptTemplate,
+ )
+-from langchain.schema import AIMessage, HumanMessage, SystemMessage
  
- # Mistral-7B docs suggests that it works for context length up to 8000 tokens
+ # According to these links it seems that setting the openai_api_base as a param or an
+ # environment variable will allow us to use drop-in replacements for the OpenAI API
+@@ -17,24 +19,54 @@ from langchain.schema import AIMessage, HumanMessage, SystemMessage
+ # langchain.chat_models.openai.ChatOpenAI.html#langchain.chat_models.openai.ChatOpenAI
  
+ # In order to serve the model locally, you need to run the following command:
+-# python3 -m llama_cpp.server --model <path to model>
++# python3 -m llama_cpp.server --model <path to model> --n_ctx=<context length>
++#
++# I made an environment variable for the context length named N_CTX
++#
+ # Further instructions can be found here:
+ # https://llama-cpp-python.readthedocs.io/en/latest/
+ 
++# Mistral-7B docs suggests that it works for context length up to 8000 tokens
++
 +
 +def read_txt():
 +    with open(os.path.join(os.getcwd(), "input.txt"), "r") as f:
@@ -36,15 +66,30 @@ index 3f29b05..67ba302 100644
 +    max_tokens=MAX_TOKENS,
  )
  
- system_template = (
-@@ -47,7 +64,9 @@ chat_prompt = ChatPromptTemplate.from_messages(
+-messages = [
+-    SystemMessage(
+-        content="You are MistralOrca, a large language model trained by Alignment Lab AI."  # . Write out your reasoning step-by-step to be sure you get the right answers!"
+-    ),
+-    HumanMessage(content="What is the capital of Taiwan?"),
+-]
++system_template = (
++    "You are MistralOrca, a large language model trained by Alignment Lab AI."
++)
++system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
++human_template = "{text}"
++human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
  
- # get a chat completion from the formatted messages
- result = chat(
--    chat_prompt.format_prompt(text="What is the capital of Taiwan?").to_messages()
+-result = chat(messages)
++chat_prompt = ChatPromptTemplate.from_messages(
++    [system_message_prompt, human_message_prompt]
++)
++
++# get a chat completion from the formatted messages
++result = chat(
 +    chat_prompt.format_prompt(
 +        text=text,
 +    ).to_messages()
- )
++)
  
- print(result.content)
+-print(result)
++print(result.content)
