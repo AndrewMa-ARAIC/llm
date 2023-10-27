@@ -1,14 +1,3 @@
-import os
-import textwrap
-
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    AIMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-
 # According to these links it seems that setting the openai_api_base as a param or an
 # environment variable will allow us to use drop-in replacements for the OpenAI API
 # https://clehaxze.tw/gemlog/2023/09-25-using-llama-cpp-python-server-with-langchain.gmi
@@ -28,6 +17,22 @@ from langchain.prompts.chat import (
 
 # Mistral-7B docs suggests that it works for context length up to 8000 tokens
 
+
+import os
+import textwrap
+
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    AIMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
+# Callbacks support token-wise streaming
+callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
 def read_txt():
     with open(os.path.join(os.getcwd(), "input.txt"), "r") as f:
@@ -49,10 +54,12 @@ chat = ChatOpenAI(
     openai_api_key="YOUR_API_KEY",
     openai_api_base="http://localhost:8000/v1",
     max_tokens=MAX_TOKENS,
+    streaming=True,
+    callback_manager=callback_manager,
 )
 
 system_template = (
-    "You are MistralOrca, a large language model trained by Alignment Lab AI."
+    "You are MistralOrca, a large language model."
 )
 system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
 human_template = "{text}"

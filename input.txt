@@ -1,1 +1,10 @@
-What is the capital of the UK?
+Please summarize the following text document into bullet points: 
+
+Context
+
+Recently, the Infrastructure team has released Serverless Deployment based on SonataFlow (Ex-Kogito). A serverless workflow behaves similarly to a state machine where states are connected with Events. SonataFlow is simply an implementation of the serverless specification, it is a tool to build serverless workflow applications.
+According to Martin Fowler, serverless architectures are application designs that incorporate third-party "Backend as a Service" (BaaS) services. A serverless workflow can orchestrate those external services, be it a OpenAPI service, or a simple REST service. 
+
+We believe Serverless can and should be used in the context of Continuous Training. In that context, pipelines such as, the tekton pipeline that releases an inference service, or the kubeflow pipeline that preprocess the raw data before uploading to a storage bucket can be thought of as states.
+Serverless gives us the ability to connect pipelines that rely on different orchestrators (e.g Tekton with Kubeflow) using Events, specifically Cloud Events. Upon receiving the corresponding event type, the external service(s) will start the corresponding pipelines. There should be ideally a 1:1 mapping between an event and a pipeline.
+
