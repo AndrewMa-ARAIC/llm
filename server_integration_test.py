@@ -38,10 +38,12 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 # Callbacks support token-wise streaming
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
+
 def read_txt():
     with open(os.path.join(os.getcwd(), "input.txt"), "r") as f:
         text = f.read()
     return text
+
 
 MODEL = os.getenv("MODEL", "UNKNOWN MODEL")
 MAX_TOKENS = 2000
@@ -50,9 +52,9 @@ text = read_txt()
 print(f"input.txt:\n{textwrap.fill(text, max_lines=5)}")
 print()
 print("Parameters:")
-print(f'MODEL = {MODEL}')
+print(f"MODEL = {MODEL}")
 print(f'N_CTX = {os.environ["N_CTX"]}')
-print(f'max tokens = {MAX_TOKENS}')
+print(f"max tokens = {MAX_TOKENS}")
 
 chat = ChatOpenAI(
     temperature=0,
@@ -63,9 +65,7 @@ chat = ChatOpenAI(
     callback_manager=callback_manager,
 )
 
-system_template = (
-    "You are MistralOrca, a large language model."
-)
+system_template = "You are MistralOrca, a large language model."
 system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
 human_template = "{text}"
 human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
@@ -77,7 +77,7 @@ chat_prompt = ChatPromptTemplate.from_messages(
 mlflow.set_experiment("local_llm")
 with mlflow.start_run():
     start_time = time.time()
-    
+
     print()
     print("Running inference...")
     # get a chat completion from the formatted messages
@@ -89,7 +89,7 @@ with mlflow.start_run():
     print()
     print()
     print("Inference complete.")
-    
+
     end_time = time.time()
     duration = end_time - start_time
     minutes = int(duration // 60)
@@ -104,6 +104,6 @@ with mlflow.start_run():
         "Output": [result.content],
     }
     df = pd.DataFrame(log_data)
-    
+
     # Log the DataFrame as a table in mlflow
     mlflow.log_table(data=df, artifact_file="run_details.json")
