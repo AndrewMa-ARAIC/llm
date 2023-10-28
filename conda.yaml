@@ -118,4 +118,5 @@ dependencies:
       - zipp==3.17.0
 variables:
   N_CTX: '8000'
+  MODEL: mistral-7b-openorca.Q4_K_M.gguf
 prefix: /home/andrew/miniconda3/envs/llm

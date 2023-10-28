@@ -17,6 +17,10 @@
 
 # Mistral-7B docs suggests that it works for context length up to 8000 tokens
 
+import mlflow
+import pandas as pd
+
+import time
 
 import os
 import textwrap
@@ -39,13 +43,14 @@ def read_txt():
         text = f.read()
     return text
 
-
+MODEL = os.getenv("MODEL", "UNKNOWN MODEL")
 MAX_TOKENS = 2000
 
 text = read_txt()
-print(f"input.txt:\n\n{textwrap.fill(text, max_lines=5)}")
+print(f"input.txt:\n{textwrap.fill(text, max_lines=5)}")
 print()
 print("Parameters:")
+print(f'MODEL = {MODEL}')
 print(f'N_CTX = {os.environ["N_CTX"]}')
 print(f'max tokens = {MAX_TOKENS}')
 
@@ -69,11 +74,36 @@ chat_prompt = ChatPromptTemplate.from_messages(
     [system_message_prompt, human_message_prompt]
 )
 
-# get a chat completion from the formatted messages
-result = chat(
-    chat_prompt.format_prompt(
-        text=text,
-    ).to_messages()
-)
+mlflow.set_experiment("local_llm")
+with mlflow.start_run():
+    start_time = time.time()
+    
+    print()
+    print("Running inference...")
+    # get a chat completion from the formatted messages
+    result = chat(
+        chat_prompt.format_prompt(
+            text=text,
+        ).to_messages()
+    )
+    print()
+    print()
+    print("Inference complete.")
+    
+    end_time = time.time()
+    duration = end_time - start_time
+    minutes = int(duration // 60)
+    seconds = int(duration % 60)
+    formatted_duration = f"{minutes}m {seconds}s"
 
-print(result.content)
+    # Create a pandas DataFrame with the details to be logged
+    log_data = {
+        "Model Used": [MODEL],
+        "Duration": [formatted_duration],
+        "Input": [text],
+        "Output": [result.content],
+    }
+    df = pd.DataFrame(log_data)
+    
+    # Log the DataFrame as a table in mlflow
+    mlflow.log_table(data=df, artifact_file="run_details.json")
